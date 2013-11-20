@@ -5,7 +5,7 @@ module.exports = function(grunt) {
 	grunt.initConfig({
 		watch: {
 			scripts: {
-				files: ['**/*.js'],
+				files: ['test/*.js', 'lib/*.js'],
 				tasks: ['mochaTest'],
 				options: {
 					spawn: true,
