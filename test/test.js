@@ -1,4 +1,6 @@
-var assert = require('assert');
+var assert = require('assert'),
+	chai = require('chai'),
+	expect = chai.expect;
 
 var Backbone = require('Backbone');
 var levelDbBackboneAdapter = require('../lib/adapter');
@@ -175,21 +177,13 @@ describe('Backbone Models', function(){
 
 		it('#Model.fetch() should get a model by key[Callback]', function (done) {
 			ExampleModel.fetch('Aaron Rodgers', function(err, model){
-				if(err){
-					done(err);
-					return;
-				}
+				expect(err).equals(null);
+				expect(model.isModel).equals(true);
+				expect(model.get('id')).equals('Aaron Rodgers');
+				expect(model.get('name')).equals('Aaron Rodgers');
+				expect(model.get('team')).equals('GB');
 
-				if(
-					model.isModel &&
-					model.get('id') === 'Aaron Rodgers' &&
-					model.get('name') === 'Aaron Rodgers' &&
-					model.get('team') === 'GB'
-				){
-					done();
-				}else{
-					done('Not the model you are looking for.'+ JSON.stringify( model.toJSON() ) );
-				}
+				done();
 			});
 		});
 	});
