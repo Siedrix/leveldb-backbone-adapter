@@ -1,7 +1,6 @@
 var assert = require('assert');
 
 var Backbone = require('Backbone');
-var _ = require('underscore');
 var levelDbBackboneAdapter = require('../lib/adapter');
 
 levelDbBackboneAdapter(Backbone, {
