@@ -1,8 +1,9 @@
 var assert = require('assert'),
 	chai = require('chai'),
-	expect = chai.expect;
+	expect = chai.expect,
+	uuid = require('node-uuid'),
+	Backbone = require('Backbone');
 
-var Backbone = require('Backbone');
 var levelDbBackboneAdapter = require('../lib/adapter');
 
 levelDbBackboneAdapter(Backbone, {
@@ -10,7 +11,7 @@ levelDbBackboneAdapter(Backbone, {
 });
 
 var ExampleModel = Backbone.Model.extend({
-	dbName : 'example',
+	dbName : 'example'
 });
 
 var ExampleCollection = Backbone.Collection.extend({
@@ -19,11 +20,11 @@ var ExampleCollection = Backbone.Collection.extend({
 });
 
 var data = [
-	{ type : 'put', key: 'Tom Brady',			value : { name : 'Tom Brady'		,completed : 223,attempts : 380,tds : 14,team : 'NE'  ,active : true  } },
-	{ type : 'put', key: 'Peyton Manning',		value : { name : 'Peyton Manning'   ,completed : 286,attempts : 409,tds : 34,team : 'DEN' ,active : true  } },
-	{ type : 'put', key: 'Drew Brees',			value : { name : 'Drew Brees'       ,completed : 277,attempts : 406,tds : 26,team : 'NO'  ,active : true  } },
-	{ type : 'put', key: 'Matthew Stafford',	value : { name : 'Matthew Stafford' ,completed : 248,attempts : 419,tds : 21,team : 'DET' ,active : true  } },
-	{ type : 'put', key: 'Aaron Rodgers',		value : { name : 'Aaron Rodgers'    ,completed : 168,attempts : 251,tds : 15,team : 'GB'  ,active : false } },
+	{ type : 'put', key: uuid.v1(),	value : { name : 'Tom Brady'		,completed : 223,attempts : 380,tds : 14,team : 'NE'  ,active : true  } },
+	{ type : 'put', key: uuid.v1(), value : { name : 'Peyton Manning'   ,completed : 286,attempts : 409,tds : 34,team : 'DEN' ,active : true  } },
+	{ type : 'put', key: uuid.v1(),	value : { name : 'Drew Brees'       ,completed : 277,attempts : 406,tds : 26,team : 'NO'  ,active : true  } },
+	{ type : 'put', key: uuid.v1(),	value : { name : 'Matthew Stafford' ,completed : 248,attempts : 419,tds : 21,team : 'DET' ,active : true  } },
+	{ type : 'put', key: uuid.v1(),	value : { name : 'Aaron Rodgers'    ,completed : 168,attempts : 251,tds : 15,team : 'GB'  ,active : false } },
 ];
 
 before(function(done){
@@ -176,11 +177,11 @@ describe('Backbone Models', function(){
 			assert.equal(typeof exampleModel._db.del, 'function');
 		});
 
-		it('#Model.fetch() should get a model by key[Callback]', function (done) {
-			ExampleModel.fetch('Aaron Rodgers', function(err, model){
+		it('#Model.findOne() should get a model[Callback]', function (done) {
+			ExampleModel.findOne({name:'Aaron Rodgers'}, function(err, model){
 				expect(err).equals(null);
 				expect(model.isModel).equals(true);
-				expect(model.get('id')).equals('Aaron Rodgers');
+				expect(model.get('id')).to.be.a('string');
 				expect(model.get('name')).equals('Aaron Rodgers');
 				expect(model.get('team')).equals('GB');
 
@@ -188,21 +189,87 @@ describe('Backbone Models', function(){
 			});
 		});
 
-		it('#Model.fetch() should get a model by key[Promise]', function (done) {
-			var q = ExampleModel.fetch('Aaron Rodgers');
+		it('#Model.findOne() should get a model[Promise]', function (done) {
+			var q = ExampleModel.findOne({name:'Aaron Rodgers'});
 
 			q.then(function (model) {
 				expect(model.isModel).equals(true);
-				expect(model.get('id')).equals('Aaron Rodgers');
+				expect(model.get('id')).to.be.a('string');
 				expect(model.get('name')).equals('Aaron Rodgers');
 				expect(model.get('team')).equals('GB');
 
 				done();
+			});
+		});
+
+		it('#Model.findOne({name:"Michael Jordan"}) should get no models[Callback]');
+		it('#Model.findOne({name:"Michael Jordan"}) should get no models[Promise]');
+		it('#Model.findOne({active:true}) should get to many models[Callback]');
+		it('#Model.findOne({active:true}) should get to many models[Promise]');
+
+		it('#new Model() of record not in database[Callback]', function (done) {
+			var model = new ExampleModel({
+				name : 'Philip Rivers',
+				completed : 254,
+				attempts : 358,
+				tds : 19,
+				team : 'SD',
+				active : true
+			});
+
+			var fn = function (model) {
+				ExampleModel._db.get(model.get('id'), function (err, data) {
+					if(err){
+						done(err);
+						return;
+					}
+
+					expect(data.id).equals(undefined);
+					expect(data.name).equals('Philip Rivers');
+					expect(data.team).equals('SD');
+
+					done(err);
+				});
+			};
+
+			model.save(null, {success:fn});
+		});
+
+		it('#new Model() of record not in database[Promise]', function (done) {
+			var model = new ExampleModel({
+				name : 'Andy Dalton',
+				completed : 252,
+				attempts : 410,
+				tds : 21,
+				team : 'CIN',
+				active : true
+			});
+
+			var q = model.save();
+
+			q.then(function (err) {
+				if(err){
+					done(err);
+					return;
+				}
+
+				ExampleModel._db.get(model.get('id'), function (err, data) {
+					if(err){
+						done(err);
+						return;
+					}
+
+					expect(data.id).equals(undefined);
+					expect(data.name).equals('Andy Dalton');
+					expect(data.team).equals('CIN');
+
+					done(err);
+				});
 			});
 		});
 
 		it('#model.save()[Callback]', function (done) {
-			var q = ExampleModel.fetch('Drew Brees');
+			var q = ExampleModel.findOne({name:'Drew Brees'});
 
 			q.then(function (model) {
 				// Check save definition
@@ -214,7 +281,7 @@ describe('Backbone Models', function(){
 				//
 				model.save('tds', 28, {success: function (/* model */) {
 					// Get data from data base to verify that was saved properly.
-					ExampleModel._db.get('Drew Brees', function (err, data) {
+					ExampleModel._db.get(model.get('id'), function (err, data) {
 						if(err){
 							done(err);
 							return;
@@ -231,7 +298,7 @@ describe('Backbone Models', function(){
 		});
 
 		it('#model.save()[Promise]', function (done) {
-			var q = ExampleModel.fetch('Aaron Rodgers');
+			var q = ExampleModel.findOne({name:'Aaron Rodgers'});
 
 			q.then(function (model) {
 				model.set('active', true);
@@ -240,7 +307,7 @@ describe('Backbone Models', function(){
 
 				q.then(function(){
 					// Get data from data base to verify that was saved properly.
-					ExampleModel._db.get('Aaron Rodgers', function (err, data) {
+					ExampleModel._db.get(model.id, function (err, data) {
 						if(err){
 							done(err);
 							return;
@@ -258,7 +325,7 @@ describe('Backbone Models', function(){
 
 		// The best retire
 		it('#model.destroy[Collection]', function (done) {
-			var q = ExampleModel.fetch('Tom Brady');
+			var q = ExampleModel.findOne({name:'Tom Brady'});
 
 			q.then(function (tomBrady) {
 				tomBrady.destroy({success: function () {
@@ -278,7 +345,7 @@ describe('Backbone Models', function(){
 		});
 
 		it('#model.destroy[Promise]', function (done) {
-			var q = ExampleModel.fetch('Peyton Manning');
+			var q = ExampleModel.findOne({name:'Peyton Manning'});
 
 			q.then(function (peytonManning) {
 				var q = peytonManning.destroy();
