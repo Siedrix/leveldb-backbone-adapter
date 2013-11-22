@@ -2,7 +2,8 @@ var assert = require('assert'),
 	chai = require('chai'),
 	expect = chai.expect,
 	uuid = require('node-uuid'),
-	Backbone = require('Backbone');
+	Backbone = require('Backbone'),
+	_ = require('underscore');
 
 var levelDbBackboneAdapter = require('../lib/adapter');
 
@@ -78,7 +79,7 @@ describe('Backbone Collection', function(){
 		});
 	});
 
-	describe('new ExampleCollection', function () {
+	describe('exampleCollection', function () {
 		it('should be a Backbone Collection instance', function () {
 			var exampleCollection = new ExampleCollection();
 
@@ -108,9 +109,9 @@ describe('Backbone Collection', function(){
 			});
 		});
 
-		it('#filterFetch() should query the data base', function (done) {
+		it('#findFetch() should query the data base', function (done) {
 			var exampleCollection = new ExampleCollection();
-			var q = exampleCollection.filterFetch(function(item){
+			var q = exampleCollection.findFetch(function(item){
 				return !item.active;
 			});
 
@@ -122,6 +123,8 @@ describe('Backbone Collection', function(){
 				}
 			});
 		});
+
+		it('#findOneFetch() should query the data base');
 	});
 });
 
@@ -160,7 +163,7 @@ describe('Backbone Models', function(){
 		});
 	});
 
-	describe('new ExampleModel', function () {
+	describe('exampleModel', function () {
 		it('should be a Backbone Model instance', function () {
 			var exampleModel = new ExampleModel();
 
@@ -177,8 +180,11 @@ describe('Backbone Models', function(){
 			assert.equal(typeof exampleModel._db.del, 'function');
 		});
 
-		it('#Model.findOne() should get a model[Callback]', function (done) {
-			ExampleModel.findOne({name:'Aaron Rodgers'}, function(err, model){
+		it('#Model.get() should get a model[Callback]');
+		it('#Model.get() should get a model[Promise]');
+
+		it('#Model.find() should get a model[Callback]', function (done) {
+			ExampleModel.find({name:'Aaron Rodgers'}, function(err, model){
 				expect(err).equals(null);
 				expect(model.isModel).equals(true);
 				expect(model.get('id')).to.be.a('string');
@@ -188,9 +194,8 @@ describe('Backbone Models', function(){
 				done();
 			});
 		});
-
-		it('#Model.findOne() should get a model[Promise]', function (done) {
-			var q = ExampleModel.findOne({name:'Aaron Rodgers'});
+		it('#Model.find() should get a model[Promise]', function (done) {
+			var q = ExampleModel.find({name:'Aaron Rodgers'});
 
 			q.then(function (model) {
 				expect(model.isModel).equals(true);
@@ -202,10 +207,74 @@ describe('Backbone Models', function(){
 			});
 		});
 
-		it('#Model.findOne({name:"Michael Jordan"}) should get no models[Callback]');
-		it('#Model.findOne({name:"Michael Jordan"}) should get no models[Promise]');
-		it('#Model.findOne({active:true}) should get to many models[Callback]');
-		it('#Model.findOne({active:true}) should get to many models[Promise]');
+		it('#Model.find() should get a model if asking with multiple values on query[Callback]', function (done) {
+			ExampleModel.find({
+				name:'Aaron Rodgers',
+				active:false
+			}, function(err, model){
+				expect(err).equals(null);
+				expect(model.isModel).equals(true);
+				expect(model.get('id')).to.be.a('string');
+				expect(model.get('name')).equals('Aaron Rodgers');
+				expect(model.get('team')).equals('GB');
+
+				done();
+			});
+		});
+		it('#Model.find() should get a model if asking with multiple values on query[Promise]', function (done) {
+			var q = ExampleModel.find({
+				name:'Aaron Rodgers',
+				active:false
+			});
+
+			q.then(function (model) {
+				expect(model.isModel).equals(true);
+				expect(model.get('id')).to.be.a('string');
+				expect(model.get('name')).equals('Aaron Rodgers');
+				expect(model.get('team')).equals('GB');
+
+				done();
+			});
+		});
+
+		it('#Model.find({name:"Michael Jordan"}) should get no models[Callback]', function (done) {
+			ExampleModel.find({name:'Michael Jordan'}, function(err, model){
+				expect( _.isObject(err) ).equals(true);
+				expect( _.isEmpty(err)  ).equals(true);
+				expect(model).equals(null);
+
+				done();
+			});
+		});
+		it('#Model.find({name:"Michael Jordan"}) should get no models[Promise]', function (done) {
+			var q = ExampleModel.find({name:'Michael Jordan'});
+
+			q.then(function(model){
+				expect(model).to.be.a('undefined');
+
+				done();
+			});
+		});
+
+		it('#Model.find({active:true}) should get to many models as error[Callback]', function (done) {
+			ExampleModel.find({active:true}, function(err, model){
+				expect( _.isObject(err) ).equals(true);
+				expect(err.error).equals('to many models in find');
+				expect(model).equals(null);
+
+				done();
+			});
+		});
+		it('#Model.find({active:true}) should get to many models as error[Promise]', function (done) {
+			var q = ExampleModel.find({active:true});
+
+			q.fail(function(err){
+				expect( _.isObject(err) ).equals(true);
+				expect(err.error).equals('to many models in find');
+
+				done();
+			});
+		});
 
 		it('#new Model() of record not in database[Callback]', function (done) {
 			var model = new ExampleModel({
@@ -234,7 +303,6 @@ describe('Backbone Models', function(){
 
 			model.save(null, {success:fn});
 		});
-
 		it('#new Model() of record not in database[Promise]', function (done) {
 			var model = new ExampleModel({
 				name : 'Andy Dalton',
@@ -269,7 +337,7 @@ describe('Backbone Models', function(){
 		});
 
 		it('#model.save()[Callback]', function (done) {
-			var q = ExampleModel.findOne({name:'Drew Brees'});
+			var q = ExampleModel.find({name:'Drew Brees'});
 
 			q.then(function (model) {
 				// Check save definition
@@ -296,9 +364,8 @@ describe('Backbone Models', function(){
 				} });
 			});
 		});
-
 		it('#model.save()[Promise]', function (done) {
-			var q = ExampleModel.findOne({name:'Aaron Rodgers'});
+			var q = ExampleModel.find({name:'Aaron Rodgers'});
 
 			q.then(function (model) {
 				model.set('active', true);
@@ -325,7 +392,7 @@ describe('Backbone Models', function(){
 
 		// The best retire
 		it('#model.destroy[Collection]', function (done) {
-			var q = ExampleModel.findOne({name:'Tom Brady'});
+			var q = ExampleModel.find({name:'Tom Brady'});
 
 			q.then(function (tomBrady) {
 				tomBrady.destroy({success: function () {
@@ -343,9 +410,8 @@ describe('Backbone Models', function(){
 				} });
 			});
 		});
-
 		it('#model.destroy[Promise]', function (done) {
-			var q = ExampleModel.findOne({name:'Peyton Manning'});
+			var q = ExampleModel.find({name:'Peyton Manning'});
 
 			q.then(function (peytonManning) {
 				var q = peytonManning.destroy();
