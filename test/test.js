@@ -22,7 +22,7 @@ var data = [
 	{ type : 'put', key: 'Peyton Manning',		value : { name : 'Peyton Manning'   ,completed : 286,attempts : 409,tds : 34,team : 'DEN' ,active : true  } },
 	{ type : 'put', key: 'Drew Brees',			value : { name : 'Drew Brees'       ,completed : 277,attempts : 406,tds : 26,team : 'NO'  ,active : true  } },
 	{ type : 'put', key: 'Matthew Stafford',	value : { name : 'Matthew Stafford' ,completed : 248,attempts : 419,tds : 21,team : 'DET' ,active : true  } },
-	{ type : 'put', key: 'Aaron Rodgers',		value : { name : 'Aaron Rodgers'   ,completed : 168,attempts : 251,tds : 15,team : 'GB'  ,active : false } },
+	{ type : 'put', key: 'Aaron Rodgers',		value : { name : 'Aaron Rodgers'    ,completed : 168,attempts : 251,tds : 15,team : 'GB'  ,active : false } },
 ];
 
 before(function(done){
@@ -184,6 +184,74 @@ describe('Backbone Models', function(){
 				expect(model.get('team')).equals('GB');
 
 				done();
+			});
+		});
+
+		it('#Model.fetch() should get a model by key[Promise]', function (done) {
+			var q = ExampleModel.fetch('Aaron Rodgers');
+
+			q.then(function (model) {
+				expect(model.isModel).equals(true);
+				expect(model.get('id')).equals('Aaron Rodgers');
+				expect(model.get('name')).equals('Aaron Rodgers');
+				expect(model.get('team')).equals('GB');
+
+				done();
+			});
+		});
+
+		it('#model.save()[Callback]', function (done) {
+			var q = ExampleModel.fetch('Drew Brees');
+
+			q.then(function (model) {
+				// Check save definition
+				// key, val, options are the arguments
+				//
+				// Can also be written as 
+				// model.set('tds', 28)
+				// model.save(null, {success:fn});
+				//
+				model.save('tds', 28, {success: function (/* model */) {
+					// Get data from data base to verify that was saved properly.
+					ExampleModel._db.get('Drew Brees', function (err, data) {
+						if(err){
+							done(err);
+							return;
+						}
+
+						expect(data.id).equals(undefined);
+						expect(data.name).equals('Drew Brees');
+						expect(data.tds).equals(28);
+
+						done(err);
+					});
+				} });
+			});
+		});
+
+		it('#model.save()[Promise]', function (done) {
+			var q = ExampleModel.fetch('Aaron Rodgers');
+
+			q.then(function (model) {
+				model.set('active', true);
+
+				var q = model.save();
+
+				q.then(function(){
+					// Get data from data base to verify that was saved properly.
+					ExampleModel._db.get('Aaron Rodgers', function (err, data) {
+						if(err){
+							done(err);
+							return;
+						}
+
+						expect(data.id).equals(undefined);
+						expect(data.name).equals('Aaron Rodgers');
+						expect(data.active).equals(true);
+
+						done(err);
+					});
+				});
 			});
 		});
 	});

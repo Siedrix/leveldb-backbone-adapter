@@ -1,7 +1,4 @@
 module.exports = function(grunt) {
-	// grunt.initConfig({
-	// });
-
 	grunt.initConfig({
 		watch: {
 			scripts: {
@@ -25,5 +22,5 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-mocha-test');
 	grunt.loadNpmTasks('grunt-contrib-watch');
 
-	grunt.registerTask("default");
+	grunt.registerTask('default');
 };
