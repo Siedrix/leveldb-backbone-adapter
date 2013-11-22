@@ -101,30 +101,79 @@ describe('Backbone Collection', function(){
 			var q = exampleCollection.fetch();
 
 			q.then(function () {
-				if(exampleCollection.length === 5){
-					done();
-				}else{
-					done('incorrect length of collection: ' + exampleCollection.length);
-				}
+				var collectionAsArray = exampleCollection.toArray();
+
+				expect(collectionAsArray.length).equals(5);
+
+				expect(collectionAsArray[0].get('name')).equals('Tom Brady');
+				expect(collectionAsArray[1].get('name')).equals('Peyton Manning');
+				expect(collectionAsArray[2].get('name')).equals('Drew Brees');
+				expect(collectionAsArray[3].get('name')).equals('Matthew Stafford');
+				expect(collectionAsArray[4].get('name')).equals('Aaron Rodgers');
+
+				done();
 			});
 		});
 
-		it('#findFetch() should query the data base', function (done) {
+		it('#fetchFilter() should query the data base[function]', function (done) {
 			var exampleCollection = new ExampleCollection();
-			var q = exampleCollection.findFetch(function(item){
+			var q = exampleCollection.fetchFilter(function(item){
 				return !item.active;
 			});
 
 			q.then(function () {
-				if(exampleCollection.length === 1){
-					done();
-				}else{
-					done('incorrect length of collection: ' + exampleCollection.length);
-				}
+				expect(exampleCollection.length).equals(1);
+
+				expect(exampleCollection.first().get('id')).to.be.a('string');
+				expect(exampleCollection.first().get('name')).equals('Aaron Rodgers');
+				expect(exampleCollection.first().get('team')).equals('GB');
+
+				done();
+			});
+		});
+		it('#fetchFilter() should query the data base[object]', function (done) {
+			var exampleCollection = new ExampleCollection();
+			var q = exampleCollection.fetchFilter({active:false});
+
+			q.then(function () {
+				expect(exampleCollection.length).equals(1);
+
+				expect(exampleCollection.first().get('id')).to.be.a('string');
+				expect(exampleCollection.first().get('name')).equals('Aaron Rodgers');
+				expect(exampleCollection.first().get('team')).equals('GB');
+
+				done();
 			});
 		});
 
-		it('#findOneFetch() should query the data base');
+		it('#FetchOne() should query the data base for one model[function]', function (done) {
+			var exampleCollection = new ExampleCollection();
+			var q = exampleCollection.fetchOne(function(item){
+				return !item.active;
+			});
+
+			q.then(function (model) {
+				expect(model.isModel).equals(true);
+				expect(model.get('id')).to.be.a('string');
+				expect(model.get('name')).equals('Aaron Rodgers');
+				expect(model.get('team')).equals('GB');
+
+				done();
+			});
+		});
+		it('#FetchOne() should query the data base for one model[object]', function (done) {
+			var exampleCollection = new ExampleCollection();
+			var q = exampleCollection.fetchOne({active:false});
+
+			q.then(function (model) {
+				expect(model.isModel).equals(true);
+				expect(model.get('id')).to.be.a('string');
+				expect(model.get('name')).equals('Aaron Rodgers');
+				expect(model.get('team')).equals('GB');
+
+				done();
+			});
+		});
 	});
 });
 
@@ -276,7 +325,35 @@ describe('Backbone Models', function(){
 			});
 		});
 
-		it('#new Model() of record not in database[Callback]', function (done) {
+		it('#Model.find(fn), should get one model[Callback]', function (done) {
+			ExampleModel.find(function(data){
+				return data.name === 'Aaron Rodgers';
+			},function(err,model){
+				expect(err).equals(null);
+				expect(model.isModel).equals(true);
+				expect(model.get('id')).to.be.a('string');
+				expect(model.get('name')).equals('Aaron Rodgers');
+				expect(model.get('team')).equals('GB');
+
+				done();
+			});
+		});
+		it('#Model.find(fn), should get one model[Promise]', function (done) {
+			var q = ExampleModel.find(function(data){
+				return data.name === 'Aaron Rodgers';
+			});
+
+			q.then(function(model){
+				expect(model.isModel).equals(true);
+				expect(model.get('id')).to.be.a('string');
+				expect(model.get('name')).equals('Aaron Rodgers');
+				expect(model.get('team')).equals('GB');
+
+				done();
+			});
+		});
+
+		it('#new Model() create[Callback]', function (done) {
 			var model = new ExampleModel({
 				name : 'Philip Rivers',
 				completed : 254,
@@ -303,7 +380,7 @@ describe('Backbone Models', function(){
 
 			model.save(null, {success:fn});
 		});
-		it('#new Model() of record not in database[Promise]', function (done) {
+		it('#new Model() create[Promise]', function (done) {
 			var model = new ExampleModel({
 				name : 'Andy Dalton',
 				completed : 252,
