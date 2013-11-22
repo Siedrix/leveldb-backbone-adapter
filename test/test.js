@@ -19,6 +19,7 @@ var ExampleCollection = Backbone.Collection.extend({
 });
 
 var data = [
+	{ type : 'put', key: 'Tom Brady',			value : { name : 'Tom Brady'		,completed : 223,attempts : 380,tds : 14,team : 'NE'  ,active : true  } },
 	{ type : 'put', key: 'Peyton Manning',		value : { name : 'Peyton Manning'   ,completed : 286,attempts : 409,tds : 34,team : 'DEN' ,active : true  } },
 	{ type : 'put', key: 'Drew Brees',			value : { name : 'Drew Brees'       ,completed : 277,attempts : 406,tds : 26,team : 'NO'  ,active : true  } },
 	{ type : 'put', key: 'Matthew Stafford',	value : { name : 'Matthew Stafford' ,completed : 248,attempts : 419,tds : 21,team : 'DET' ,active : true  } },
@@ -93,12 +94,12 @@ describe('Backbone Collection', function(){
 			assert.equal(typeof exampleCollection._db.del, 'function');
 		});
 
-		it('#fetch() should get all the elements in the db(4)', function (done) {
+		it('#fetch() should get all the elements in the db(5)', function (done) {
 			var exampleCollection = new ExampleCollection();
 			var q = exampleCollection.fetch();
 
 			q.then(function () {
-				if(exampleCollection.length === 4){
+				if(exampleCollection.length === 5){
 					done();
 				}else{
 					done('incorrect length of collection: ' + exampleCollection.length);
@@ -250,6 +251,49 @@ describe('Backbone Models', function(){
 						expect(data.active).equals(true);
 
 						done(err);
+					});
+				});
+			});
+		});
+
+		// The best retire
+		it('#model.destroy[Collection]', function (done) {
+			var q = ExampleModel.fetch('Tom Brady');
+
+			q.then(function (tomBrady) {
+				tomBrady.destroy({success: function () {
+					// Gets all QBs and validates that Tom Brady is retired
+					var exampleCollection = new ExampleCollection();
+					var q = exampleCollection.fetch();
+
+					q.then(function () {
+						var peytons = exampleCollection.where({name: 'Tom Brady'});
+
+						expect(peytons.length).equals(0);
+
+						done();
+					});
+				} });
+			});
+		});
+
+		it('#model.destroy[Promise]', function (done) {
+			var q = ExampleModel.fetch('Peyton Manning');
+
+			q.then(function (peytonManning) {
+				var q = peytonManning.destroy();
+
+				q.then(function () {
+					// Gets all QBs and validates that Peyton Manning is retired 
+					var exampleCollection = new ExampleCollection();
+					var q = exampleCollection.fetch();
+
+					q.then(function () {
+						var peytons = exampleCollection.where({name: 'Peyton Manning'});
+
+						expect(peytons.length).equals(0);
+
+						done();
 					});
 				});
 			});
