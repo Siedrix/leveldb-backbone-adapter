@@ -20,7 +20,7 @@ module.exports = function(grunt) {
 		plato: {
 			your_task: {
 				files: {
-					'reports/': ['lib/*.js']
+					'reports/': ['lib/*.js', 'test/*.js']
 				}
 			}
 		},
