@@ -229,9 +229,6 @@ describe('Backbone Models', function(){
 			assert.equal(typeof exampleModel._db.del, 'function');
 		});
 
-		it('#Model.get() should get a model[Callback]');
-		it('#Model.get() should get a model[Promise]');
-
 		it('#Model.find() should get a model[Callback]', function (done) {
 			ExampleModel.find({name:'Aaron Rodgers'}, function(err, model){
 				expect(err).equals(null);
@@ -352,6 +349,37 @@ describe('Backbone Models', function(){
 				done();
 			});
 		});
+
+		it('#Model.get() should get a model[Callback]', function (done) {
+			var q = ExampleModel.find({name:'Aaron Rodgers'});
+
+			q.then(function (data) {
+				ExampleModel.get(data.get('id'), function(err, model){
+					expect(model.isModel).equals(true);
+					expect(model.get('id')).to.be.a('string');
+					expect(model.get('name')).equals('Aaron Rodgers');
+					expect(model.get('team')).equals('GB');
+
+					done();
+				});
+			});
+		});
+		it('#Model.get() should get a model[Promise]', function (done) {
+			var q = ExampleModel.find({name:'Aaron Rodgers'});
+
+			q.then(function (data) {
+				var q = ExampleModel.get(data.get('id'));
+
+				q.then(function(model){
+					expect(model.isModel).equals(true);
+					expect(model.get('id')).to.be.a('string');
+					expect(model.get('name')).equals('Aaron Rodgers');
+					expect(model.get('team')).equals('GB');
+
+					done();
+				});
+			});
+		});		
 
 		it('#new Model() create[Callback]', function (done) {
 			var model = new ExampleModel({
