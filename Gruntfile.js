@@ -16,11 +16,25 @@ module.exports = function(grunt) {
 				},
 				src: ['test/*.js']
 			}
+		},
+		plato: {
+			your_task: {
+				files: {
+					'reports/': ['lib/*.js']
+				}
+			}
+		},
+		githooks: {
+			all: {
+				'pre-commit': 'plato'
+			}
 		}
 	});
 
 	grunt.loadNpmTasks('grunt-mocha-test');
 	grunt.loadNpmTasks('grunt-contrib-watch');
+	grunt.loadNpmTasks('grunt-githooks');
+	grunt.loadNpmTasks('grunt-plato');
 
 	grunt.registerTask('default');
 };

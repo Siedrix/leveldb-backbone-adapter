@@ -13,6 +13,8 @@
     "grunt": "~0.4.1",
     "grunt-contrib-watch": "~0.5.3",
     "grunt-mocha-test": "~0.7.0",
-    "chai": "~1.8.1"
+    "chai": "~1.8.1",
+    "grunt-plato": "~0.2.1",
+    "grunt-githooks": "~0.3.0"
   }
 }
