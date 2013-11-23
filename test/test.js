@@ -379,7 +379,7 @@ describe('Backbone Models', function(){
 					done();
 				});
 			});
-		});		
+		});
 
 		it('#new Model() create[Callback]', function (done) {
 			var model = new ExampleModel({
