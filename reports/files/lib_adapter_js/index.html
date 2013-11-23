@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title></title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+
+  <link href="../../assets/css/vendor/morris.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/bootstrap.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/font-awesome.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/font-awesome-ie7.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/codemirror.css" rel="stylesheet">
+  <link href="../../assets/css/plato.css" rel="stylesheet">
+  <link href="../../assets/css/plato-file.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+<div class="navbar navbar-fixed-top">
+  <div class="container">
+    <a class="navbar-brand" href="http://github.com/jsoverson/plato">Plato on Github</a>
+    <ul class="nav navbar-nav">
+      <li>
+        <a href="../../index.html">Report Home</a>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<div class="jumbotron">
+  <div class="container">
+    <h1>lib/adapter.js</h1>
+  </div>
+</div>
+
+<div class="container aggregate-stats">
+  <div class="row">
+    <div class="col-md-6">
+      <h2 class="header">Maintainability <a href="http://blogs.msdn.com/b/codeanalysis/archive/2007/11/20/maintainability-index-range-and-meaning.aspx"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="A value between 0 and 100 that represents the relative ease of maintaining the code. A high value means better maintainability." data-original-title="Maintainability Index"></i></a></h2>
+      <p class="stat">70.01</p>
+    </div>
+    <div class="col-md-6">
+      <h2 class="header">Lines of code <i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Source Lines of Code / Logical Lines of Code" data-original-title="SLOC/LSLOC"></i></h2>
+      <p class="stat">259</p>
+    </div>
+  </div>
+  <div class="row historical">
+    <div class="col-md-6">
+      <p id="chart_historical_maint" class="chart"></p>
+    </div>
+    <div class="col-md-6">
+      <p id="chart_historical_sloc" class="chart"></p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <h2 class="header">Difficulty  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="The difficulty measure is related to the difficulty of the program to write or understand." data-original-title="Difficulty"></i></a></h2>
+      <p class="stat">41.97</p>
+    </div>
+    <div class="col-md-6">
+      <h2 class="header">Estimated Errors  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Halstead's delivered bugs is an estimate for the number of errors in the implementation." data-original-title="Delivered Bugs"></i></a></h2>
+      <p class="stat">2.14</p>
+    </div>
+  </div>
+</div>
+
+<div class="container charts">
+  <div class="row">
+    <h2 class="header">Function weight</h2>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <h3 class="chart-header">By Complexity <a href="http://en.wikipedia.org/wiki/Cyclomatic_complexity"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="This metric counts the number of distinct paths through a block of code. Lower values are better." data-original-title="Cyclomatic Complexity"></i></a></h3>
+      <div id="fn-by-complexity" class="stat"></div>
+    </div>
+    <div class="col-md-6">
+      <h3 class="chart-header">By SLOC  <i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Source Lines of Code / Logical Lines of Code" data-original-title="SLOC/LSLOC"></i></h3>
+      <div id="fn-by-sloc" class="stat"></div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="row">
+    <textarea id="file-source" class="col-md-12">var level = require(&#039;level&#039;);
+var sublevel = require(&#039;level-sublevel&#039;);
+var uuid = require(&#039;node-uuid&#039;);
+var _ = require(&#039;underscore&#039;);
+var q = require(&#039;q&#039;);
+
+var sub;
+
+var Adapter = function (Backbone, config) {
+	// Sets sublevel database at backbone level
+	var db  = level(&#039;./&#039;+config.db, { valueEncoding: &#039;json&#039; });
+	Backbone.db = sub = sublevel(db);
+
+	Backbone.sync = function (method, entity, options) {
+		var deferred;
+
+		if(entity.isCollection){
+			var collection = entity;
+
+			if(method === &#039;read&#039;){
+				deferred = q.defer();
+				var readStream = collection._db.createReadStream();
+
+				readStream.on(&#039;data&#039;, function(data){
+					data.value.id = data.key;
+
+					if(options.filter &amp;&amp; options.filter(data.value)){
+						collection.add(data.value);
+					}else if(!options.filter){
+						collection.add(data.value);
+					}
+				})
+				.on(&#039;end&#039;, function(){
+					deferred.resolve();
+				})
+				.on(&#039;error&#039;, function(err){
+					deferred.resolve(err);
+				});
+
+				return deferred.promise;
+			}
+		}
+
+		if(entity.isModel){
+			var model = entity;
+			var modelAsJSON = model.toJSON();
+			delete modelAsJSON.id;
+
+			if(method === &#039;create&#039;){
+				deferred = q.defer();
+
+				var id = uuid.v1();
+
+				model._db.put( id, modelAsJSON, function (err) {
+					if(err){
+						options.error(err);
+						return;
+					}
+
+					model.set(&#039;id&#039;, id);
+
+					deferred.resolve();
+					options.success();
+				});
+
+				return deferred.promise;
+			}else if(method === &#039;update&#039;){
+				deferred = q.defer();
+
+				model._db.put( model.get(&#039;id&#039;), modelAsJSON, function (err) {
+					if(err){
+						options.error(err);
+						return;
+					}
+
+					deferred.resolve();
+					options.success();
+				});
+
+				return deferred.promise;
+			}else if(method === &#039;delete&#039;){
+				//implement
+				deferred = q.defer();
+
+				model._db.del( model.get(&#039;id&#039;), function (err) {
+					if(err){
+						options.error(err);
+						return;
+					}
+
+					deferred.resolve();
+					options.success();
+				});
+
+				return deferred.promise;
+			}
+		}
+	};
+
+	Adapter.CollectionOverwrite(Backbone.Collection);
+	Adapter.ModelOverwrite(Backbone.Model);
+};
+
+Adapter.CollectionOverwrite = function (Collection) {
+	Collection.oldExtend = Collection.extend;
+
+	Collection.extend = function (object) {
+		var result = Collection.oldExtend.apply(this, arguments);
+
+		result.prototype.isCollection = true;
+
+		if(object.dbName){
+			result.prototype._db = sub.sublevel(object.dbName);
+
+
+			result.prototype.nuke = function (callback) {
+				var collection = this;
+
+				var opts = [];
+
+				collection._db.createKeyStream().on(&#039;data&#039;, function(key){
+					opts.push({type:&#039;del&#039;, key:key});
+				})
+				.on(&#039;end&#039;, function(err){
+					if(err){
+						callback(err);
+						return;
+					}
+
+					collection._db.batch(opts, function (err) {
+						callback(err);
+					});
+				})
+				.on(&#039;error&#039;, function(err){
+					console.log(&#039;There as an error&#039;, err);
+					callback(err);
+				});
+			};
+
+			result.prototype.fetchFilter = function (fn) {
+				if( !_.isFunction(fn) ){
+					var queryObject = fn;
+					fn = function (data) {
+						var pass = true;
+
+						_.each(queryObject, function (value, key) {
+							if( !(_.has(data,key) &amp;&amp; data[key] === value) ){
+								pass = false;
+							}
+						});
+
+						return pass;
+					};
+				}
+
+				return this.fetch({filter : fn});
+			};
+
+			result.prototype.fetchOne = function (query) {
+				return this.model.find(query);
+			};
+		}
+
+		return result;
+	};
+};
+
+Adapter.ModelOverwrite = function (Model) {
+	Model.oldExtend = Model.extend;
+
+	Model.extend = function (object) {
+		var result = Model.oldExtend.apply(this, arguments);
+
+		result.prototype.isModel = true;
+
+		if(object.dbName){
+			var collection = sub.sublevel(object.dbName);
+
+			result.dbName = object.dbName;
+			result._db = collection;
+			result.prototype._db = collection;
+		}
+
+		return result;
+	};
+
+	Model.find = function (query, callback) {
+		var Self = this,
+			models = [];
+
+		var deferred = q.defer();
+
+		var readStream = this._db.createReadStream();
+
+		readStream.on(&#039;data&#039;, function(data){
+			var pass ;
+			if(_.isFunction(query)){
+				pass = query(data.value);
+			}else{
+				pass = true;
+
+				_.each(query, function (value, key) {
+					if( !(_.has(data.value,key) &amp;&amp; data.value[key] === value) ){
+						pass = false;
+					}
+				});
+
+			}
+
+			if(pass){
+				data.value.id = data.key;
+				models.push(data.value);
+			}
+
+		})
+		.on(&#039;end&#039;, function(){
+			if(models.length === 1){
+				var model = new Self(models[0]);
+				if(callback) callback(null, model);
+				deferred.resolve( model );
+			}else if(models.length &gt; 1){
+				if(callback) callback({error: &#039;to many models in find&#039;}, null);
+				deferred.reject({error: &#039;to many models in find&#039;});
+			}else{
+				if(callback) callback({},null);
+				deferred.resolve();
+			}
+		})
+		.on(&#039;error&#039;, function(err){
+			deferred.resolve(err);
+		});
+
+		return deferred.promise;
+	};
+
+	Model.get = function (id, callback) {
+		var Self = this;
+		var deferred = q.defer();
+
+		this._db.get(id, function(err, data){
+			if(err){
+				deferred.reject(err);
+				if(callback) callback(err, null);
+				return;
+			}
+
+			data.id = id;
+
+			var model = new Self(data);
+
+			deferred.resolve(model);
+			if(callback) callback(null, model);
+		});
+
+		return deferred.promise;
+	};
+};
+
+module.exports = Adapter;</textarea>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="container">
+    <p>.</p>
+  </div>
+</footer>
+
+<script type="text/html" id="complexity-popover-template">
+  <div class="complexity-notice">
+    Complexity : {{ complexity.cyclomatic }} <br>
+    Length : {{ complexity.halstead.length }} <br>
+    Difficulty : {{ complexity.halstead.difficulty.toFixed(2) }} <br>
+    Est # bugs : {{ complexity.halstead.bugs.toFixed(2) }}<br>
+  </div>
+</script>
+
+<script type="text/javascript" src="../../assets/scripts/bundles/core-bundle.js"></script>
+<script type="text/javascript" src="../../assets/scripts/bundles/codemirror.js"></script>
+<script type="text/javascript" src="../../assets/scripts/codemirror.markpopovertext.js"></script>
+<script type="text/javascript" src="report.js"></script>
+<script type="text/javascript" src="report.history.js"></script>
+<script type="text/javascript" src="../../assets/scripts/plato-file.js"></script>
+</body>
+</html>

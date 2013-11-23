@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title></title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+
+  <link href="../../assets/css/vendor/morris.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/bootstrap.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/font-awesome.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/font-awesome-ie7.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/codemirror.css" rel="stylesheet">
+  <link href="../../assets/css/plato.css" rel="stylesheet">
+  <link href="../../assets/css/plato-file.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+<div class="navbar navbar-fixed-top">
+  <div class="container">
+    <a class="navbar-brand" href="http://github.com/jsoverson/plato">Plato on Github</a>
+    <ul class="nav navbar-nav">
+      <li>
+        <a href="../../index.html">Report Home</a>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<div class="jumbotron">
+  <div class="container">
+    <h1>test/test.js</h1>
+  </div>
+</div>
+
+<div class="container aggregate-stats">
+  <div class="row">
+    <div class="col-md-6">
+      <h2 class="header">Maintainability <a href="http://blogs.msdn.com/b/codeanalysis/archive/2007/11/20/maintainability-index-range-and-meaning.aspx"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="A value between 0 and 100 that represents the relative ease of maintaining the code. A high value means better maintainability." data-original-title="Maintainability Index"></i></a></h2>
+      <p class="stat">76.03</p>
+    </div>
+    <div class="col-md-6">
+      <h2 class="header">Lines of code <i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Source Lines of Code / Logical Lines of Code" data-original-title="SLOC/LSLOC"></i></h2>
+      <p class="stat">540</p>
+    </div>
+  </div>
+  <div class="row historical">
+    <div class="col-md-6">
+      <p id="chart_historical_maint" class="chart"></p>
+    </div>
+    <div class="col-md-6">
+      <p id="chart_historical_sloc" class="chart"></p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <h2 class="header">Difficulty  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="The difficulty measure is related to the difficulty of the program to write or understand." data-original-title="Difficulty"></i></a></h2>
+      <p class="stat">53.91</p>
+    </div>
+    <div class="col-md-6">
+      <h2 class="header">Estimated Errors  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Halstead's delivered bugs is an estimate for the number of errors in the implementation." data-original-title="Delivered Bugs"></i></a></h2>
+      <p class="stat">6.67</p>
+    </div>
+  </div>
+</div>
+
+<div class="container charts">
+  <div class="row">
+    <h2 class="header">Function weight</h2>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <h3 class="chart-header">By Complexity <a href="http://en.wikipedia.org/wiki/Cyclomatic_complexity"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="This metric counts the number of distinct paths through a block of code. Lower values are better." data-original-title="Cyclomatic Complexity"></i></a></h3>
+      <div id="fn-by-complexity" class="stat"></div>
+    </div>
+    <div class="col-md-6">
+      <h3 class="chart-header">By SLOC  <i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Source Lines of Code / Logical Lines of Code" data-original-title="SLOC/LSLOC"></i></h3>
+      <div id="fn-by-sloc" class="stat"></div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="row">
+    <textarea id="file-source" class="col-md-12">var assert = require(&#039;assert&#039;),
+	chai = require(&#039;chai&#039;),
+	expect = chai.expect,
+	uuid = require(&#039;node-uuid&#039;),
+	Backbone = require(&#039;Backbone&#039;),
+	_ = require(&#039;underscore&#039;);
+
+var levelDbBackboneAdapter = require(&#039;../lib/adapter&#039;);
+
+levelDbBackboneAdapter(Backbone, {
+	db : &#039;testDb&#039;
+});
+
+var ExampleModel = Backbone.Model.extend({
+	dbName : &#039;example&#039;
+});
+
+var ExampleCollection = Backbone.Collection.extend({
+	dbName : &#039;example&#039;,
+	model : ExampleModel
+});
+
+var data = [
+	{ type : &#039;put&#039;, key: uuid.v1(),	value : { name : &#039;Tom Brady&#039;		,completed : 223,attempts : 380,tds : 14,team : &#039;NE&#039;  ,active : true  } },
+	{ type : &#039;put&#039;, key: uuid.v1(), value : { name : &#039;Peyton Manning&#039;   ,completed : 286,attempts : 409,tds : 34,team : &#039;DEN&#039; ,active : true  } },
+	{ type : &#039;put&#039;, key: uuid.v1(),	value : { name : &#039;Drew Brees&#039;       ,completed : 277,attempts : 406,tds : 26,team : &#039;NO&#039;  ,active : true  } },
+	{ type : &#039;put&#039;, key: uuid.v1(),	value : { name : &#039;Matthew Stafford&#039; ,completed : 248,attempts : 419,tds : 21,team : &#039;DET&#039; ,active : true  } },
+	{ type : &#039;put&#039;, key: uuid.v1(),	value : { name : &#039;Aaron Rodgers&#039;    ,completed : 168,attempts : 251,tds : 15,team : &#039;GB&#039;  ,active : false } },
+];
+
+before(function(done){
+	var exampleCollection = new ExampleCollection();
+	exampleCollection.nuke(function (err) {
+		if(err){
+			console.log(&#039;Couln\&#039;t nuke Db&#039;, err);
+			done(err);
+			return;
+		}
+
+		exampleCollection._db.batch(data, function () {
+			done(err);
+		});
+	});
+});
+
+describe(&#039;Backbone set up&#039;, function(){
+	describe(&#039;Backbone.db&#039;, function(){
+		it(&#039;Should be an intance of leveldb&#039;, function(){
+			assert.equal(typeof Backbone.db, &#039;object&#039;);
+			assert.equal(typeof Backbone.db.put, &#039;function&#039;);
+			assert.equal(typeof Backbone.db.del, &#039;function&#039;);
+			assert.equal(typeof Backbone.db.batch, &#039;function&#039;);
+		});
+	});
+});
+
+describe(&#039;Backbone Collection&#039;, function(){
+	describe(&#039;Backbone.Collection basics&#039;, function(){
+		it(&#039;should have the adapter extend,not the regular extend&#039;, function () {
+			assert.equal(typeof Backbone.Collection.oldExtend,&#039;function&#039;);
+			assert.notEqual(Backbone.Collection.oldExtend, Backbone.Collection.extend);
+		});
+	});
+
+	describe(&#039;ExampleCollection&#039;, function () {
+		it(&#039;should be a Backbone.Collection&#039;, function () {
+			// Use this method to test that Example Collection inherits from Backbone.Collection
+			assert.equal(ExampleCollection.__super__, Backbone.Collection.prototype);
+		});
+
+		it(&#039;should have a dbName and db&#039;, function () {
+			// Test that Example collections has a db
+			assert.equal(ExampleCollection.prototype.dbName, &#039;example&#039;);
+
+			assert.equal(typeof ExampleCollection.prototype._db, &#039;object&#039;);
+			assert.equal(typeof ExampleCollection.prototype._db.put, &#039;function&#039;);
+			assert.equal(typeof ExampleCollection.prototype._db.get, &#039;function&#039;);
+			assert.equal(typeof ExampleCollection.prototype._db.del, &#039;function&#039;);
+		});
+	});
+
+	describe(&#039;exampleCollection&#039;, function () {
+		it(&#039;should be a Backbone Collection instance&#039;, function () {
+			var exampleCollection = new ExampleCollection();
+
+			assert.equal(exampleCollection.isCollection, true);
+		});
+
+		it(&#039;should have a _db property and a dbName&#039;, function () {
+			var exampleCollection = new ExampleCollection();
+			assert.equal(exampleCollection.dbName, &#039;example&#039;);
+
+			assert.equal(typeof exampleCollection._db, &#039;object&#039;);
+			assert.equal(typeof exampleCollection._db.put, &#039;function&#039;);
+			assert.equal(typeof exampleCollection._db.get, &#039;function&#039;);
+			assert.equal(typeof exampleCollection._db.del, &#039;function&#039;);
+		});
+
+		it(&#039;#fetch() should get all the elements in the db(5)&#039;, function (done) {
+			var exampleCollection = new ExampleCollection();
+			var q = exampleCollection.fetch();
+
+			q.then(function () {
+				var collectionAsArray = exampleCollection.toArray();
+
+				expect(collectionAsArray.length).equals(5);
+
+				expect(collectionAsArray[0].get(&#039;name&#039;)).equals(&#039;Tom Brady&#039;);
+				expect(collectionAsArray[1].get(&#039;name&#039;)).equals(&#039;Peyton Manning&#039;);
+				expect(collectionAsArray[2].get(&#039;name&#039;)).equals(&#039;Drew Brees&#039;);
+				expect(collectionAsArray[3].get(&#039;name&#039;)).equals(&#039;Matthew Stafford&#039;);
+				expect(collectionAsArray[4].get(&#039;name&#039;)).equals(&#039;Aaron Rodgers&#039;);
+
+				done();
+			});
+		});
+
+		it(&#039;#fetchFilter() should query the data base[function]&#039;, function (done) {
+			var exampleCollection = new ExampleCollection();
+			var q = exampleCollection.fetchFilter(function(item){
+				return !item.active;
+			});
+
+			q.then(function () {
+				expect(exampleCollection.length).equals(1);
+
+				expect(exampleCollection.first().get(&#039;id&#039;)).to.be.a(&#039;string&#039;);
+				expect(exampleCollection.first().get(&#039;name&#039;)).equals(&#039;Aaron Rodgers&#039;);
+				expect(exampleCollection.first().get(&#039;team&#039;)).equals(&#039;GB&#039;);
+
+				done();
+			});
+		});
+		it(&#039;#fetchFilter() should query the data base[object]&#039;, function (done) {
+			var exampleCollection = new ExampleCollection();
+			var q = exampleCollection.fetchFilter({active:false});
+
+			q.then(function () {
+				expect(exampleCollection.length).equals(1);
+
+				expect(exampleCollection.first().get(&#039;id&#039;)).to.be.a(&#039;string&#039;);
+				expect(exampleCollection.first().get(&#039;name&#039;)).equals(&#039;Aaron Rodgers&#039;);
+				expect(exampleCollection.first().get(&#039;team&#039;)).equals(&#039;GB&#039;);
+
+				done();
+			});
+		});
+
+		it(&#039;#FetchOne() should query the data base for one model[function]&#039;, function (done) {
+			var exampleCollection = new ExampleCollection();
+			var q = exampleCollection.fetchOne(function(item){
+				return !item.active;
+			});
+
+			q.then(function (model) {
+				expect(model.isModel).equals(true);
+				expect(model.get(&#039;id&#039;)).to.be.a(&#039;string&#039;);
+				expect(model.get(&#039;name&#039;)).equals(&#039;Aaron Rodgers&#039;);
+				expect(model.get(&#039;team&#039;)).equals(&#039;GB&#039;);
+
+				done();
+			});
+		});
+		it(&#039;#FetchOne() should query the data base for one model[object]&#039;, function (done) {
+			var exampleCollection = new ExampleCollection();
+			var q = exampleCollection.fetchOne({active:false});
+
+			q.then(function (model) {
+				expect(model.isModel).equals(true);
+				expect(model.get(&#039;id&#039;)).to.be.a(&#039;string&#039;);
+				expect(model.get(&#039;name&#039;)).equals(&#039;Aaron Rodgers&#039;);
+				expect(model.get(&#039;team&#039;)).equals(&#039;GB&#039;);
+
+				done();
+			});
+		});
+	});
+});
+
+describe(&#039;Backbone Models&#039;, function(){
+	describe(&#039;Backbone.Models basics&#039;, function(){
+		it(&#039;should have the adapter extend,not the regular extend&#039;, function () {
+			assert.equal(typeof Backbone.Model.oldExtend,&#039;function&#039;);
+			assert.notEqual(Backbone.Model.oldExtend, Backbone.Collection.extend);
+		});
+	});
+
+	describe(&#039;ExampleModel&#039;, function () {
+		it(&#039;should be a Backbone.Model&#039;, function () {
+			// Use this method to test that Example Collection inherits from Backbone.Collection
+			assert.equal(ExampleModel.__super__, Backbone.Model.prototype);
+		});
+
+		it(&#039;should have a dbName and db on constructor&#039;, function () {
+			// Test that Example collections has a db
+			assert.equal(ExampleModel.dbName, &#039;example&#039;);
+
+			assert.equal(typeof ExampleModel._db, &#039;object&#039;);
+			assert.equal(typeof ExampleModel._db.put, &#039;function&#039;);
+			assert.equal(typeof ExampleModel._db.get, &#039;function&#039;);
+			assert.equal(typeof ExampleModel._db.del, &#039;function&#039;);
+		});
+
+		it(&#039;should have a dbName and db on prototype&#039;, function () {
+			// Test that Example collections has a db
+			assert.equal(ExampleModel.prototype.dbName, &#039;example&#039;);
+
+			assert.equal(typeof ExampleModel.prototype._db, &#039;object&#039;);
+			assert.equal(typeof ExampleModel.prototype._db.put, &#039;function&#039;);
+			assert.equal(typeof ExampleModel.prototype._db.get, &#039;function&#039;);
+			assert.equal(typeof ExampleModel.prototype._db.del, &#039;function&#039;);
+		});
+	});
+
+	describe(&#039;exampleModel&#039;, function () {
+		it(&#039;should be a Backbone Model instance&#039;, function () {
+			var exampleModel = new ExampleModel();
+
+			assert.equal(exampleModel.isModel, true);
+		});
+
+		it(&#039;should have a _db property and a dbName&#039;, function () {
+			var exampleModel = new ExampleModel();
+			assert.equal(exampleModel.dbName, &#039;example&#039;);
+
+			assert.equal(typeof exampleModel._db, &#039;object&#039;);
+			assert.equal(typeof exampleModel._db.put, &#039;function&#039;);
+			assert.equal(typeof exampleModel._db.get, &#039;function&#039;);
+			assert.equal(typeof exampleModel._db.del, &#039;function&#039;);
+		});
+
+		it(&#039;#Model.find() should get a model[Callback]&#039;, function (done) {
+			ExampleModel.find({name:&#039;Aaron Rodgers&#039;}, function(err, model){
+				expect(err).equals(null);
+				expect(model.isModel).equals(true);
+				expect(model.get(&#039;id&#039;)).to.be.a(&#039;string&#039;);
+				expect(model.get(&#039;name&#039;)).equals(&#039;Aaron Rodgers&#039;);
+				expect(model.get(&#039;team&#039;)).equals(&#039;GB&#039;);
+
+				done();
+			});
+		});
+		it(&#039;#Model.find() should get a model[Promise]&#039;, function (done) {
+			var q = ExampleModel.find({name:&#039;Aaron Rodgers&#039;});
+
+			q.then(function (model) {
+				expect(model.isModel).equals(true);
+				expect(model.get(&#039;id&#039;)).to.be.a(&#039;string&#039;);
+				expect(model.get(&#039;name&#039;)).equals(&#039;Aaron Rodgers&#039;);
+				expect(model.get(&#039;team&#039;)).equals(&#039;GB&#039;);
+
+				done();
+			});
+		});
+
+		it(&#039;#Model.find() should get a model if asking with multiple values on query[Callback]&#039;, function (done) {
+			ExampleModel.find({
+				name:&#039;Aaron Rodgers&#039;,
+				active:false
+			}, function(err, model){
+				expect(err).equals(null);
+				expect(model.isModel).equals(true);
+				expect(model.get(&#039;id&#039;)).to.be.a(&#039;string&#039;);
+				expect(model.get(&#039;name&#039;)).equals(&#039;Aaron Rodgers&#039;);
+				expect(model.get(&#039;team&#039;)).equals(&#039;GB&#039;);
+
+				done();
+			});
+		});
+		it(&#039;#Model.find() should get a model if asking with multiple values on query[Promise]&#039;, function (done) {
+			var q = ExampleModel.find({
+				name:&#039;Aaron Rodgers&#039;,
+				active:false
+			});
+
+			q.then(function (model) {
+				expect(model.isModel).equals(true);
+				expect(model.get(&#039;id&#039;)).to.be.a(&#039;string&#039;);
+				expect(model.get(&#039;name&#039;)).equals(&#039;Aaron Rodgers&#039;);
+				expect(model.get(&#039;team&#039;)).equals(&#039;GB&#039;);
+
+				done();
+			});
+		});
+
+		it(&#039;#Model.find({name:&quot;Michael Jordan&quot;}) should get no models[Callback]&#039;, function (done) {
+			ExampleModel.find({name:&#039;Michael Jordan&#039;}, function(err, model){
+				expect( _.isObject(err) ).equals(true);
+				expect( _.isEmpty(err)  ).equals(true);
+				expect(model).equals(null);
+
+				done();
+			});
+		});
+		it(&#039;#Model.find({name:&quot;Michael Jordan&quot;}) should get no models[Promise]&#039;, function (done) {
+			var q = ExampleModel.find({name:&#039;Michael Jordan&#039;});
+
+			q.then(function(model){
+				expect(model).to.be.a(&#039;undefined&#039;);
+
+				done();
+			});
+		});
+
+		it(&#039;#Model.find({active:true}) should get to many models as error[Callback]&#039;, function (done) {
+			ExampleModel.find({active:true}, function(err, model){
+				expect( _.isObject(err) ).equals(true);
+				expect(err.error).equals(&#039;to many models in find&#039;);
+				expect(model).equals(null);
+
+				done();
+			});
+		});
+		it(&#039;#Model.find({active:true}) should get to many models as error[Promise]&#039;, function (done) {
+			var q = ExampleModel.find({active:true});
+
+			q.fail(function(err){
+				expect( _.isObject(err) ).equals(true);
+				expect(err.error).equals(&#039;to many models in find&#039;);
+
+				done();
+			});
+		});
+
+		it(&#039;#Model.find(fn), should get one model[Callback]&#039;, function (done) {
+			ExampleModel.find(function(data){
+				return data.name === &#039;Aaron Rodgers&#039;;
+			},function(err,model){
+				expect(err).equals(null);
+				expect(model.isModel).equals(true);
+				expect(model.get(&#039;id&#039;)).to.be.a(&#039;string&#039;);
+				expect(model.get(&#039;name&#039;)).equals(&#039;Aaron Rodgers&#039;);
+				expect(model.get(&#039;team&#039;)).equals(&#039;GB&#039;);
+
+				done();
+			});
+		});
+		it(&#039;#Model.find(fn), should get one model[Promise]&#039;, function (done) {
+			var q = ExampleModel.find(function(data){
+				return data.name === &#039;Aaron Rodgers&#039;;
+			});
+
+			q.then(function(model){
+				expect(model.isModel).equals(true);
+				expect(model.get(&#039;id&#039;)).to.be.a(&#039;string&#039;);
+				expect(model.get(&#039;name&#039;)).equals(&#039;Aaron Rodgers&#039;);
+				expect(model.get(&#039;team&#039;)).equals(&#039;GB&#039;);
+
+				done();
+			});
+		});
+
+		it(&#039;#Model.get() should get a model[Callback]&#039;, function (done) {
+			var q = ExampleModel.find({name:&#039;Aaron Rodgers&#039;});
+
+			q.then(function (data) {
+				ExampleModel.get(data.get(&#039;id&#039;), function(err, model){
+					expect(model.isModel).equals(true);
+					expect(model.get(&#039;id&#039;)).to.be.a(&#039;string&#039;);
+					expect(model.get(&#039;name&#039;)).equals(&#039;Aaron Rodgers&#039;);
+					expect(model.get(&#039;team&#039;)).equals(&#039;GB&#039;);
+
+					done();
+				});
+			});
+		});
+		it(&#039;#Model.get() should get a model[Promise]&#039;, function (done) {
+			var q = ExampleModel.find({name:&#039;Aaron Rodgers&#039;});
+
+			q.then(function (data) {
+				var q = ExampleModel.get(data.get(&#039;id&#039;));
+
+				q.then(function(model){
+					expect(model.isModel).equals(true);
+					expect(model.get(&#039;id&#039;)).to.be.a(&#039;string&#039;);
+					expect(model.get(&#039;name&#039;)).equals(&#039;Aaron Rodgers&#039;);
+					expect(model.get(&#039;team&#039;)).equals(&#039;GB&#039;);
+
+					done();
+				});
+			});
+		});
+
+		it(&#039;#new Model() create[Callback]&#039;, function (done) {
+			var model = new ExampleModel({
+				name : &#039;Philip Rivers&#039;,
+				completed : 254,
+				attempts : 358,
+				tds : 19,
+				team : &#039;SD&#039;,
+				active : true
+			});
+
+			var fn = function (model) {
+				ExampleModel._db.get(model.get(&#039;id&#039;), function (err, data) {
+					if(err){
+						done(err);
+						return;
+					}
+
+					expect(data.id).equals(undefined);
+					expect(data.name).equals(&#039;Philip Rivers&#039;);
+					expect(data.team).equals(&#039;SD&#039;);
+
+					done(err);
+				});
+			};
+
+			model.save(null, {success:fn});
+		});
+		it(&#039;#new Model() create[Promise]&#039;, function (done) {
+			var model = new ExampleModel({
+				name : &#039;Andy Dalton&#039;,
+				completed : 252,
+				attempts : 410,
+				tds : 21,
+				team : &#039;CIN&#039;,
+				active : true
+			});
+
+			var q = model.save();
+
+			q.then(function (err) {
+				if(err){
+					done(err);
+					return;
+				}
+
+				ExampleModel._db.get(model.get(&#039;id&#039;), function (err, data) {
+					if(err){
+						done(err);
+						return;
+					}
+
+					expect(data.id).equals(undefined);
+					expect(data.name).equals(&#039;Andy Dalton&#039;);
+					expect(data.team).equals(&#039;CIN&#039;);
+
+					done(err);
+				});
+			});
+		});
+
+		it(&#039;#model.save()[Callback]&#039;, function (done) {
+			var q = ExampleModel.find({name:&#039;Drew Brees&#039;});
+
+			q.then(function (model) {
+				// Check save definition
+				// key, val, options are the arguments
+				//
+				// Can also be written as 
+				// model.set(&#039;tds&#039;, 28)
+				// model.save(null, {success:fn});
+				//
+				model.save(&#039;tds&#039;, 28, {success: function (/* model */) {
+					// Get data from data base to verify that was saved properly.
+					ExampleModel._db.get(model.get(&#039;id&#039;), function (err, data) {
+						if(err){
+							done(err);
+							return;
+						}
+
+						expect(data.id).equals(undefined);
+						expect(data.name).equals(&#039;Drew Brees&#039;);
+						expect(data.tds).equals(28);
+
+						done(err);
+					});
+				} });
+			});
+		});
+		it(&#039;#model.save()[Promise]&#039;, function (done) {
+			var q = ExampleModel.find({name:&#039;Aaron Rodgers&#039;});
+
+			q.then(function (model) {
+				model.set(&#039;active&#039;, true);
+
+				var q = model.save();
+
+				q.then(function(){
+					// Get data from data base to verify that was saved properly.
+					ExampleModel._db.get(model.id, function (err, data) {
+						if(err){
+							done(err);
+							return;
+						}
+
+						expect(data.id).equals(undefined);
+						expect(data.name).equals(&#039;Aaron Rodgers&#039;);
+						expect(data.active).equals(true);
+
+						done(err);
+					});
+				});
+			});
+		});
+
+		// The best retire
+		it(&#039;#model.destroy[Collection]&#039;, function (done) {
+			var q = ExampleModel.find({name:&#039;Tom Brady&#039;});
+
+			q.then(function (tomBrady) {
+				tomBrady.destroy({success: function () {
+					// Gets all QBs and validates that Tom Brady is retired
+					var exampleCollection = new ExampleCollection();
+					var q = exampleCollection.fetch();
+
+					q.then(function () {
+						var peytons = exampleCollection.where({name: &#039;Tom Brady&#039;});
+
+						expect(peytons.length).equals(0);
+
+						done();
+					});
+				} });
+			});
+		});
+		it(&#039;#model.destroy[Promise]&#039;, function (done) {
+			var q = ExampleModel.find({name:&#039;Peyton Manning&#039;});
+
+			q.then(function (peytonManning) {
+				var q = peytonManning.destroy();
+
+				q.then(function () {
+					// Gets all QBs and validates that Peyton Manning is retired 
+					var exampleCollection = new ExampleCollection();
+					var q = exampleCollection.fetch();
+
+					q.then(function () {
+						var peytons = exampleCollection.where({name: &#039;Peyton Manning&#039;});
+
+						expect(peytons.length).equals(0);
+
+						done();
+					});
+				});
+			});
+		});
+	});
+});</textarea>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="container">
+    <p>.</p>
+  </div>
+</footer>
+
+<script type="text/html" id="complexity-popover-template">
+  <div class="complexity-notice">
+    Complexity : {{ complexity.cyclomatic }} <br>
+    Length : {{ complexity.halstead.length }} <br>
+    Difficulty : {{ complexity.halstead.difficulty.toFixed(2) }} <br>
+    Est # bugs : {{ complexity.halstead.bugs.toFixed(2) }}<br>
+  </div>
+</script>
+
+<script type="text/javascript" src="../../assets/scripts/bundles/core-bundle.js"></script>
+<script type="text/javascript" src="../../assets/scripts/bundles/codemirror.js"></script>
+<script type="text/javascript" src="../../assets/scripts/codemirror.markpopovertext.js"></script>
+<script type="text/javascript" src="report.js"></script>
+<script type="text/javascript" src="report.history.js"></script>
+<script type="text/javascript" src="../../assets/scripts/plato-file.js"></script>
+</body>
+</html>
