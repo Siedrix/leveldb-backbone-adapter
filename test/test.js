@@ -285,7 +285,7 @@ describe('Backbone Models', function(){
 
 		it('#Model.find({name:"Michael Jordan"}) should get no models[Callback]', function (done) {
 			ExampleModel.find({name:'Michael Jordan'}, function(err, model){
-				expect(err).to.be.a('undefined');
+				expect(err).to.equals(null);
 				expect(model).to.be.a('undefined');
 
 				done();
