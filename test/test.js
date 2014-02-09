@@ -418,25 +418,19 @@ describe('Backbone Models', function(){
 
 			var q = model.save();
 
-			q.then(function (err) {
-				if(err){
-					done(err);
-					return;
-				}
-
+			q.then(function () {
 				ExampleModel._db.get(model.get('id'), function (err, data) {
 					if(err){
-						done(err);
-						return;
+						throw err;
 					}
 
 					expect(data.id).equals(undefined);
 					expect(data.name).equals('Andy Dalton');
 					expect(data.team).equals('CIN');
 
-					done(err);
+					done();
 				});
-			});
+			}).catch(done);
 		});
 
 		it('#model.save()[Callback]', function (done) {
