@@ -25,9 +25,7 @@ module.exports = function(grunt) {
 			}
 		},
 		githooks: {
-			all: {
-				'pre-commit': 'plato'
-			}
+			all: {}
 		}
 	});
 
