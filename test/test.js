@@ -538,3 +538,104 @@ describe('Backbone Models', function(){
 		});
 	});
 });
+
+describe('Backbone Collection with values from db', function(){
+	describe('Backbone.Collection basics', function(){
+		it('should have the adapter extend,not the regular extend', function () {
+			assert.equal(typeof ExampleCollection.fetch,'function');
+			assert.equal(typeof ExampleCollection.find,'function');
+			assert.equal(typeof ExampleCollection.findOne,'function');
+		});
+	});
+
+	describe('Backbone.Collection Fetch', function(){
+		it('should return a collection', function () {
+			var exampleCollection = ExampleCollection.fetch();
+			expect(exampleCollection.isCollection).equals(true);
+		});
+
+		it('should have a event called ready trigger in the collection, once is filled', function (done) {
+			var exampleCollection = ExampleCollection.fetch();
+
+			exampleCollection.on('ready', function(){
+				expect(exampleCollection.isCollection).equals(true);
+
+				var collectionAsArray = exampleCollection.toArray();
+
+				expect(collectionAsArray.length).equals(5);
+				expect(collectionAsArray[0].get('name')).equals('Drew Brees');
+				expect(collectionAsArray[1].get('name')).equals('Matthew Stafford');
+				expect(collectionAsArray[2].get('name')).equals('Aaron Rodgers');
+				expect(collectionAsArray[3].get('name')).equals('Philip Rivers');
+				expect(collectionAsArray[4].get('name')).equals('Andy Dalton');
+
+				done();
+			});
+		});
+
+		it('should have a fetch callback, with and err and a exampleCollection with 5 items', function (done) {
+			ExampleCollection.fetch(function(err, exampleCollection){
+				expect(err).equals(null);
+				expect(exampleCollection.isCollection).equals(true);
+
+				var collectionAsArray = exampleCollection.toArray();
+
+				expect(collectionAsArray.length).equals(5);
+				expect(collectionAsArray[0].get('name')).equals('Drew Brees');
+				expect(collectionAsArray[1].get('name')).equals('Matthew Stafford');
+				expect(collectionAsArray[2].get('name')).equals('Aaron Rodgers');
+				expect(collectionAsArray[3].get('name')).equals('Philip Rivers');
+				expect(collectionAsArray[4].get('name')).equals('Andy Dalton');
+
+				done();
+			});
+		});
+
+		it('should have a find function[evented]', function (done) {
+			var exampleCollection = ExampleCollection.find(function(item){
+				return item.name.indexOf('R') >= 0;
+			});
+
+			exampleCollection.on('ready', function(){
+				expect(exampleCollection.isCollection).equals(true);
+
+				var collectionAsArray = exampleCollection.toArray();
+
+				expect(collectionAsArray.length).equals(2);
+				expect(collectionAsArray[0].get('name')).equals('Aaron Rodgers');
+				expect(collectionAsArray[1].get('name')).equals('Philip Rivers');
+
+				done();
+			});
+		});
+
+		it('should have a find function[callback]', function (done) {
+			ExampleCollection.find(function(item){
+				return item.name.indexOf('R') >= 0;
+			},function(err, exampleCollection){
+				expect(err).equals(null);
+				expect(exampleCollection.isCollection).equals(true);
+
+				var collectionAsArray = exampleCollection.toArray();
+
+				expect(collectionAsArray.length).equals(2);
+				expect(collectionAsArray[0].get('name')).equals('Aaron Rodgers');
+				expect(collectionAsArray[1].get('name')).equals('Philip Rivers');
+
+				done();
+			});
+		});
+
+		it('should have a findOne function[callback]', function (done) {
+			ExampleCollection.findOne(function(item){
+				return item.name.indexOf('Rodgers') >= 0;
+			},function(err, exampleModel){
+				expect(err).equals(null);
+				expect(exampleModel.isModel).equals(true);
+				expect(exampleModel.get('name')).equals('Aaron Rodgers');
+
+				done();
+			});
+		});
+	});
+});
