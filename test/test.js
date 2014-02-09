@@ -469,7 +469,7 @@ describe('Backbone Models', function(){
 
 				var q = model.save();
 
-				q.then(function(){
+				q.then(function(model){
 					// Get data from data base to verify that was saved properly.
 					ExampleModel._db.get(model.id, function (err, data) {
 						if(err){
