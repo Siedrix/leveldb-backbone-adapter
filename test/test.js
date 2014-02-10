@@ -1,3 +1,4 @@
+/*jshint maxlen:120 */
 var assert = require('assert'),
 	chai = require('chai'),
 	expect = chai.expect,
@@ -8,7 +9,7 @@ var assert = require('assert'),
 var levelDbBackboneAdapter = require('./utils/db-connect');
 
 var ExampleModel = Backbone.Model.extend({
-	dbName : 'example'
+	dbName : 'example',
 });
 
 var ExampleCollection = Backbone.Collection.extend({
@@ -17,11 +18,16 @@ var ExampleCollection = Backbone.Collection.extend({
 });
 
 var data = [
-	{ type : 'put', key: uuid.v1(),	value : { name : 'Tom Brady'		,completed : 223,attempts : 380,tds : 14,team : 'NE'  ,active : true  } },
-	{ type : 'put', key: uuid.v1(), value : { name : 'Peyton Manning'   ,completed : 286,attempts : 409,tds : 34,team : 'DEN' ,active : true  } },
-	{ type : 'put', key: uuid.v1(),	value : { name : 'Drew Brees'       ,completed : 277,attempts : 406,tds : 26,team : 'NO'  ,active : true  } },
-	{ type : 'put', key: uuid.v1(),	value : { name : 'Matthew Stafford' ,completed : 248,attempts : 419,tds : 21,team : 'DET' ,active : true  } },
-	{ type : 'put', key: uuid.v1(),	value : { name : 'Aaron Rodgers'    ,completed : 168,attempts : 251,tds : 15,team : 'GB'  ,active : false } },
+	{ type : 'put', key: uuid.v1(), value : { name : 'Tom Brady',completed : 223,
+    attempts : 380,tds : 14,team : 'NE'  ,active : true  } },
+	{ type : 'put', key: uuid.v1(), value : { name : 'Peyton Manning', completed : 286,
+    attempts : 409,tds : 34,team : 'DEN' ,active : true  } },
+	{ type : 'put', key: uuid.v1(),	value : { name : 'Drew Brees', completed : 277,
+    attempts : 406,tds : 26,team : 'NO'  ,active : true  } },
+	{ type : 'put', key: uuid.v1(),	value : { name : 'Matthew Stafford', completed : 248,
+    attempts : 419,tds : 21,team : 'DET' ,active : true  } },
+	{ type : 'put', key: uuid.v1(),	value : { name : 'Aaron Rodgers', completed : 168,
+    attempts : 251,tds : 15,team : 'GB'  ,active : false } },
 ];
 
 before(function(done){
