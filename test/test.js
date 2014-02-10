@@ -285,9 +285,8 @@ describe('Backbone Models', function(){
 
 		it('#Model.find({name:"Michael Jordan"}) should get no models[Callback]', function (done) {
 			ExampleModel.find({name:'Michael Jordan'}, function(err, model){
-				expect( _.isObject(err) ).equals(true);
-				expect( _.isEmpty(err)  ).equals(true);
-				expect(model).equals(null);
+				expect(err).to.equals(null);
+				expect(model).to.be.a('undefined');
 
 				done();
 			});
@@ -305,8 +304,8 @@ describe('Backbone Models', function(){
 		it('#Model.find({active:true}) should get to many models as error[Callback]', function (done) {
 			ExampleModel.find({active:true}, function(err, model){
 				expect( _.isObject(err) ).equals(true);
-				expect(err.error).equals('to many models in find');
-				expect(model).equals(null);
+				expect(err.message).equals('too many models in find');
+				expect(model).to.be.a('undefined');
 
 				done();
 			});
@@ -314,9 +313,9 @@ describe('Backbone Models', function(){
 		it('#Model.find({active:true}) should get to many models as error[Promise]', function (done) {
 			var q = ExampleModel.find({active:true});
 
-			q.fail(function(err){
+			q.catch(function(err){
 				expect( _.isObject(err) ).equals(true);
-				expect(err.error).equals('to many models in find');
+				expect(err.message).equals('too many models in find');
 
 				done();
 			});
@@ -368,16 +367,15 @@ describe('Backbone Models', function(){
 			var q = ExampleModel.find({name:'Aaron Rodgers'});
 
 			q.then(function (data) {
-				var q = ExampleModel.get(data.get('id'));
+				return ExampleModel.get(data.get('id'));
+			})
+			.then(function(model){
+				expect(model.isModel).equals(true);
+				expect(model.get('id')).to.be.a('string');
+				expect(model.get('name')).equals('Aaron Rodgers');
+				expect(model.get('team')).equals('GB');
 
-				q.then(function(model){
-					expect(model.isModel).equals(true);
-					expect(model.get('id')).to.be.a('string');
-					expect(model.get('name')).equals('Aaron Rodgers');
-					expect(model.get('team')).equals('GB');
-
-					done();
-				});
+				done();
 			});
 		});
 
@@ -420,25 +418,19 @@ describe('Backbone Models', function(){
 
 			var q = model.save();
 
-			q.then(function (err) {
-				if(err){
-					done(err);
-					return;
-				}
-
+			q.then(function () {
 				ExampleModel._db.get(model.get('id'), function (err, data) {
 					if(err){
-						done(err);
-						return;
+						throw err;
 					}
 
 					expect(data.id).equals(undefined);
 					expect(data.name).equals('Andy Dalton');
 					expect(data.team).equals('CIN');
 
-					done(err);
+					done();
 				});
-			});
+			}).catch(done);
 		});
 
 		it('#model.save()[Callback]', function (done) {
@@ -477,7 +469,7 @@ describe('Backbone Models', function(){
 
 				var q = model.save();
 
-				q.then(function(){
+				q.then(function(model){
 					// Get data from data base to verify that was saved properly.
 					ExampleModel._db.get(model.id, function (err, data) {
 						if(err){
