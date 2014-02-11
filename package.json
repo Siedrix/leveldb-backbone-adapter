@@ -21,9 +21,5 @@
     "grunt-plato": "~0.2.1",
     "grunt-githooks": "~0.3.0"
   },
-  "main": "./lib/adapter",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/Siedrix/leveldb-backbone-adapter.git"
-  }
+  "main": "./lib/adapter"
 }
