@@ -1,9 +1,6 @@
 {
   "name": "leveldb-backbone-adapter",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/Siedrix/leveldb-backbone-adapter.git"
-  },
+  "description": "This is a backend for backbone, to have storage in LevelDB",
   "version": "0.1.5",
   "dependencies": {
     "backbone": "~1.1.0",
@@ -21,5 +18,9 @@
     "grunt-plato": "~0.2.1",
     "grunt-githooks": "~0.3.0"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Siedrix/leveldb-backbone-adapter.git"
+  },  
   "main": "./lib/adapter"
 }
