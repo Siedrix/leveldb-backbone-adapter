@@ -1,12 +1,11 @@
 var assert = require('assert'),
 	chai = require('chai'),
 	expect = chai.expect,
-	uuid = require('node-uuid'),
 	Backbone = require('Backbone'),
 	Promise = require('bluebird'),
 	_ = require('underscore');
 
-var levelDbBackboneAdapter = require('./utils/db-connect');
+require('./utils/db-connect');
 
 var EmptyModel = Backbone.Model.extend({
 	dbName : 'empty'

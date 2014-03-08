@@ -2,16 +2,11 @@
 var chai = require('chai'),
 	expect = chai.expect,
 	Backbone = require('Backbone'),
-	Promise = require('bluebird'),
 	_ = require('underscore');
 
 _.str = require('underscore.string');
 
-var levelDbBackboneAdapter = require('../lib/adapter');
-
-levelDbBackboneAdapter(Backbone, {
-	db : 'testDb',
-});
+require('./utils/db-connect');
 
 var ExampleModel = Backbone.Model.extend({
 	dbName : 'example',
@@ -131,9 +126,12 @@ describe('Backbone Models', function(){
 	it('model.get works with the specified key', function(done){
 		var models = new ExampleCollection();
 		models.fetchOne('Troy Aikman').then(function(model){
-			console.log(model);
-		})
-	})
+			expect(model).to.be.ok;
+			expect(model.get('name')).equals('Troy Aikman');
+			expect(model.id).equals('Troy Aikman');
+			done();
+		});
+	});
 
 
 });

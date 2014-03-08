@@ -6,7 +6,7 @@ var assert = require('assert'),
 	Backbone = require('Backbone'),
 	_ = require('underscore');
 
-var levelDbBackboneAdapter = require('./utils/db-connect');
+require('./utils/db-connect');
 
 var ExampleModel = Backbone.Model.extend({
 	dbName : 'example',
