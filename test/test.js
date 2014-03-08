@@ -352,9 +352,7 @@ describe('Backbone Models', function(){
 		});
 
 		it('#Model.get() should get a model[Callback]', function (done) {
-			var q = ExampleModel.find({name:'Aaron Rodgers'});
-
-			q.then(function (data) {
+			ExampleModel.find({name:'Aaron Rodgers'}).then(function (data) {
 				ExampleModel.get(data.get('id'), function(err, model){
 					expect(model.isModel).equals(true);
 					expect(model.get('id')).to.be.a('string');

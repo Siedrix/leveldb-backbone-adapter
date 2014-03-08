@@ -9,7 +9,7 @@ _.str = require('underscore.string');
 require('./utils/db-connect');
 
 var ExampleModel = Backbone.Model.extend({
-	dbName : 'example',
+	dbName : 'modeltest',
 	uniqueKey: 'name',
 });
 
@@ -25,23 +25,9 @@ var NoUniqueModel = Backbone.Model.extend({
 });
 
 var ExampleCollection = Backbone.Collection.extend({
-	dbName : 'example',
+	dbName : 'modeltest',
 	model : ExampleModel
 });
-
-var data = [
-	{ type : 'put', key: 'example:tom-brady', value : { name : 'Tom Brady',completed : 223,
-		attempts : 380,tds : 14,team : 'NE'  ,active : true  } },
-	{ type : 'put', key: 'example:peyton-manning', value : { name : 'Peyton Manning', completed : 286,
-		attempts : 409,tds : 34,team : 'DEN' ,active : true  } },
-	{ type : 'put', key: 'example:drew-brees', value : { name : 'Drew Brees', completed : 277,
-		attempts : 406,tds : 26,team : 'NO'  ,active : true  } },
-	{ type : 'put', key: 'example:matthew-stafford', value : { name : 'Matthew Stafford', completed : 248,
-		attempts : 419,tds : 21,team : 'DET' ,active : true  } },
-	{ type : 'put', key: 'example:aaron-rodgers', value : { name : 'Aaron Rodgers', completed : 168,
-		attempts : 251,tds : 15,team : 'GB'  ,active : false } },
-];
-
 
 before(function(done){
 	var exampleCollection = new ExampleCollection();
@@ -51,12 +37,7 @@ before(function(done){
 			done(err);
 			return;
 		}
-		done(null, data);
-		/*
-		 * exampleCollection._db.batch(data, function () {
-		 *	done(err);
-		 * });
-		 */
+		done(null);
 	});
 });
 
